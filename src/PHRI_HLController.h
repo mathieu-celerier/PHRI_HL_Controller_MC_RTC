@@ -2,8 +2,14 @@
 
 #include <mc_control/mc_controller.h>
 #include <mc_control/fsm/Controller.h>
+#include <mc_tasks/PositionTask.h>
+#include <mc_tasks/OrientationTask.h>
+#include <mc_rtc/ros.h>
 
 #include "api.h"
+
+#define POS_CTRL 0
+#define TRQ_CTRL 1
 
 struct PHRI_HLController_DLLAPI PHRI_HLController : public mc_control::fsm::Controller
 {
@@ -12,6 +18,11 @@ struct PHRI_HLController_DLLAPI PHRI_HLController : public mc_control::fsm::Cont
     bool run() override;
 
     void reset(const mc_control::ControllerResetData & reset_data) override;
+
+    std::shared_ptr<mc_tasks::PositionTask> posTask;
+    std::shared_ptr<mc_tasks::OrientationTask> oriTask;
+
+    void computeTorques();
 private:
     mc_rtc::Configuration config_;
 };

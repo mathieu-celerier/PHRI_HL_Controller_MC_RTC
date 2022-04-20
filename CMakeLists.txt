@@ -14,6 +14,12 @@ if(NOT TARGET mc_rtc::mc_control)
   find_package(mc_rtc REQUIRED)
 endif()
 
+# To use ros
+find_package(catkin REQUIRED COMPONENTS roscpp)
+catkin_package(CATKIN_DEPENDS geometry_msgs roscpp roslib std_msgs)
+include_directories(include ${catkin_INCLUDE_DIRS} $ENV{HOME}/.local/include)
+link_directories(${catkin_LIBRARY_DIRS} $ENV{HOME}/.local/lib)
+
 add_subdirectory(src)
 
 set(AROBASE "@")

@@ -1,3 +1,5 @@
 add_fsm_state_simple(humanLikeController_Initial)
+# add_fsm_state_simple(humanLikeController_Contact)
+add_fsm_state_simple(humanLikeController_Interaction)
 
 add_fsm_data_directory(data)
