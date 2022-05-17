@@ -19,9 +19,6 @@ struct PHRI_HLController_DLLAPI PHRI_HLController : public mc_control::fsm::Cont
 
     void reset(const mc_control::ControllerResetData & reset_data) override;
 
-    std::shared_ptr<mc_tasks::PositionTask> posTask;
-    std::shared_ptr<mc_tasks::OrientationTask> oriTask;
-
     void computeTorques();
 private:
     mc_rtc::Configuration config_;

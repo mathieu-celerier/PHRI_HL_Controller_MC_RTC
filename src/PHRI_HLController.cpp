@@ -5,16 +5,8 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
 {
   solver().addConstraintSet(dynamicsConstraint);
 
-  getPostureTask(robot().name())->stiffness(1);
+  getPostureTask(robot().name())->stiffness(0.0);
   getPostureTask(robot().name())->damping(16*sqrt(5));
-  
-  // Position and Orientation tasks
-  posTask = std::make_shared<mc_tasks::PositionTask>("panda_link8", robots(), robots().robotIndex());
-  posTask->setGains(100,20);
-  posTask->weight(10000.0);
-  oriTask = std::make_shared<mc_tasks::OrientationTask>("panda_link8", robots(), robots().robotIndex());
-  oriTask->setGains(100,20);
-  oriTask->weight(10000.0);
 
   mc_rtc::log::success("HumanLike_PHRI_Controller init done ");
 }

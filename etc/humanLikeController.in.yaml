@@ -37,8 +37,12 @@ states:
     base: MetaTasks
 # Transitions map
 transitions:
-- [Released, Interact, Interaction, Auto]
+- [Released, MadeContact, InContact, Auto]
+- [InContact, Release, Released, Auto]
+- [InContact, Interact, Interaction, Auto]
 - [Interaction, Release, Released, Auto]
+- [Interaction, MadeContact, InContact, Auto]
+- [Interaction, Interact, Interaction, Auto]
 # Initial state
 init: Released
 

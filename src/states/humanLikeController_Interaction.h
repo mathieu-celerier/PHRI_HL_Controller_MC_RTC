@@ -2,7 +2,7 @@
 
 #include <thread>
 #include <ros/ros.h>
-#include <geometry_msgs/Twist.h>
+#include <std_msgs/Float32MultiArray.h>
 #include <mc_control/fsm/State.h>
 
 struct humanLikeController_Interaction : mc_control::fsm::State
@@ -15,13 +15,12 @@ struct humanLikeController_Interaction : mc_control::fsm::State
 
     void teardown(mc_control::fsm::Controller & ctl) override;
 private:
-    void updateVelTargetCallback(const geometry_msgs::Twist::ConstPtr& twist);
+    void updateVelTargetCallback(const std_msgs::Float32MultiArray::ConstPtr& joint_vel_msg);
     void get_ee_velocity_target(double dt);
 
     std::thread* thread;
 
     std::mutex target_mutex;
-    Eigen::Vector3d target_lin_vel;
-    Eigen::Vector3d target_ang_vel;
+    Eigen::VectorXd joint_vel;
     bool runThread;
 };
