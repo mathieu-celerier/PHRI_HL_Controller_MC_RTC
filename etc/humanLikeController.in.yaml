@@ -22,7 +22,7 @@ robots:
     module: env/ground
 # General constraints, always on
 constraints:
-- type: contact
+  - type: contact
 # - type: dynamics
 #   damper: [0.1, 0.01, 0.5]
 # - type: compoundJoint
@@ -37,12 +37,12 @@ states:
     base: MetaTasks
 # Transitions map
 transitions:
-- [Released, MadeContact, InContact, Auto]
-- [InContact, Release, Released, Auto]
-- [InContact, Interact, Interaction, Auto]
-- [Interaction, Release, Released, Auto]
-- [Interaction, MadeContact, InContact, Auto]
-- [Interaction, Interact, Interaction, Auto]
+  - [Released, MadeContact, InContact, Auto]
+  - [InContact, Release, Released, Auto]
+  - [InContact, Interact, Interaction, Auto]
+  - [Interaction, Release, Released, Auto]
+  - [Interaction, MadeContact, InContact, Auto]
+  - [Interaction, Interact, Interaction, Auto]
 # Initial state
 init: Released
 

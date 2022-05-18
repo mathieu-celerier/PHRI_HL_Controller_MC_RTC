@@ -8,6 +8,18 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
   getPostureTask(robot().name())->stiffness(0.0);
   getPostureTask(robot().name())->damping(16*sqrt(5));
 
+  eePosTask = std::make_shared<mc_tasks::PositionTask>(robot().frame("Arm"));
+  eeOriTask = std::make_shared<mc_tasks::OrientationTask>(robot().frame("Arm"));
+  eePosTask->setGains(2,2*sqrt(2));
+  eeOriTask->setGains(2,2*sqrt(2));
+  eePosTask->weight(20000);
+  eeOriTask->weight(20000);
+
+  logger().addLogEntry("EE_Pos_Task_eval", [this]() {return eePosTask->eval();});
+  logger().addLogEntry("EE_Pos_Task_refVel", [this]() {return eePosTask->refVel();});
+  logger().addLogEntry("EE_Ori_Task_eval", [this]() {return eePosTask->eval();});
+  logger().addLogEntry("EE_Ori_Task_refVel", [this]() {return eePosTask->refVel();});
+
   mc_rtc::log::success("HumanLike_PHRI_Controller init done ");
 }
 
@@ -20,6 +32,11 @@ bool PHRI_HLController::run()
 
 void PHRI_HLController::reset(const mc_control::ControllerResetData & reset_data)
 {
+
+  logger().removeLogEntry("EE_Pos_Task_eval");
+  logger().removeLogEntry("EE_Pos_Task_refVel");
+  logger().removeLogEntry("EE_Ori_Task_eval");
+  logger().removeLogEntry("EE_Ori_Task_refVel");
   mc_control::fsm::Controller::reset(reset_data);
 }
 

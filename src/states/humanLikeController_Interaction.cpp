@@ -12,7 +12,11 @@ void humanLikeController_Interaction::start(mc_control::fsm::Controller & ctl_)
 
   std::cout << "[MC RTC pHRIController] Admittance control.\n";
 
-  joint_vel = Eigen::VectorXd::Zero(7);
+  linearVel = Eigen::Vector3d::Zero();
+  angularVel = Eigen::Vector3d::Zero();
+
+  ctl.solver().addTask(ctl.eePosTask);
+  ctl.solver().addTask(ctl.eeOriTask);
 
   ctl.reset({ctl.realRobots().robot().mbc().q});
 
@@ -24,7 +28,10 @@ bool humanLikeController_Interaction::run(mc_control::fsm::Controller & ctl_)
 {
   auto & ctl = static_cast<PHRI_HLController &>(ctl_);
   if (target_mutex.try_lock()){
-    ctl_.getPostureTask(ctl_.robot().name())->refVel(joint_vel);
+    ctl.eePosTask->reset();
+    ctl.eeOriTask->reset();
+    ctl.eePosTask->refVel(linearVel);
+    ctl.eeOriTask->refVel(angularVel);
     target_mutex.unlock();
   }
 
@@ -44,21 +51,28 @@ void humanLikeController_Interaction::teardown(mc_control::fsm::Controller & ctl
 {
   auto & ctl = static_cast<PHRI_HLController &>(ctl_);
 
+  ctl.solver().removeTask(ctl.eePosTask);
+  ctl.solver().removeTask(ctl.eeOriTask);
+
   runThread = false;
   thread->join();
 }
 
-void humanLikeController_Interaction::updateVelTargetCallback(const std_msgs::Float32MultiArray::ConstPtr& joint_vel_msg) {
+void humanLikeController_Interaction::updateVelTargetCallback(const geometry_msgs::Twist& twist_msg) {
   if (target_mutex.try_lock()){
-    std::vector<double> data(joint_vel_msg->data.begin(),joint_vel_msg->data.end());
-    joint_vel = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(data.data(),data.size());
+    linearVel[0] = twist_msg.linear.x;
+    linearVel[1] = twist_msg.linear.y;
+    linearVel[2] = twist_msg.linear.z;
+    angularVel[0] = twist_msg.angular.x;
+    angularVel[1] = twist_msg.angular.y;
+    angularVel[2] = twist_msg.angular.z;
     target_mutex.unlock();
   }
 }
 
 void humanLikeController_Interaction::get_ee_velocity_target(double dt) {
   ros::NodeHandle node;
-  ros::Subscriber sub = node.subscribe("target_joint_vel",1000,&humanLikeController_Interaction::updateVelTargetCallback,this);
+  ros::Subscriber sub = node.subscribe("target_twist",10,&humanLikeController_Interaction::updateVelTargetCallback,this);
 
   ros::Rate rate(1.0/dt);
   while(runThread){
