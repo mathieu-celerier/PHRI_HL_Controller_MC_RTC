@@ -16,7 +16,10 @@ void humanLikeController_Interaction::start(mc_control::fsm::Controller & ctl_)
   angularVel = Eigen::Vector3d::Zero();
 
   ctl.solver().addTask(ctl.eePosTask);
-  ctl.solver().addTask(ctl.eeOriTask);
+  // ctl.solver().addTask(ctl.eeOriTask);
+  ctl.eePosTask->reset();
+  // ctl.eeOriTask->reset();
+  ctl.eePosTask->refVel(linearVel);
 
   ctl.reset({ctl.realRobots().robot().mbc().q});
 
@@ -28,10 +31,10 @@ bool humanLikeController_Interaction::run(mc_control::fsm::Controller & ctl_)
 {
   auto & ctl = static_cast<PHRI_HLController &>(ctl_);
   if (target_mutex.try_lock()){
-    ctl.eePosTask->reset();
-    ctl.eeOriTask->reset();
-    ctl.eePosTask->refVel(linearVel);
-    ctl.eeOriTask->refVel(angularVel);
+    // ctl.eePosTask->reset();
+    // ctl.eeOriTask->reset();
+    ctl.eePosTask->position(linearVel);
+    // ctl.eeOriTask->refVel(angularVel);
     target_mutex.unlock();
   }
 
@@ -52,7 +55,7 @@ void humanLikeController_Interaction::teardown(mc_control::fsm::Controller & ctl
   auto & ctl = static_cast<PHRI_HLController &>(ctl_);
 
   ctl.solver().removeTask(ctl.eePosTask);
-  ctl.solver().removeTask(ctl.eeOriTask);
+  // ctl.solver().removeTask(ctl.eeOriTask);
 
   runThread = false;
   thread->join();

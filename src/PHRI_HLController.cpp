@@ -10,8 +10,8 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
 
   eePosTask = std::make_shared<mc_tasks::PositionTask>(robot().frame("Arm"));
   eeOriTask = std::make_shared<mc_tasks::OrientationTask>(robot().frame("Arm"));
-  eePosTask->setGains(2,2*sqrt(2));
-  eeOriTask->setGains(2,2*sqrt(2));
+  eePosTask->setGains(50,100);
+  eeOriTask->setGains(20,100);
   eePosTask->weight(20000);
   eeOriTask->weight(20000);
 
