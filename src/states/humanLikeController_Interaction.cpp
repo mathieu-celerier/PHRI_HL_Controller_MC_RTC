@@ -15,11 +15,16 @@ void humanLikeController_Interaction::start(mc_control::fsm::Controller & ctl_)
   linearVel = Eigen::Vector3d::Zero();
   angularVel = Eigen::Vector3d::Zero();
 
+  Eigen::Vector3d targetPos = ctl.config()("PosTask")("target");
+
   ctl.solver().addTask(ctl.eePosTask);
-  // ctl.solver().addTask(ctl.eeOriTask);
+  ctl.solver().addTask(ctl.eeOriTask);
   ctl.eePosTask->reset();
-  // ctl.eeOriTask->reset();
+  ctl.eeOriTask->reset();
   ctl.eePosTask->refVel(linearVel);
+  ctl.eePosTask->position(targetPos);
+  ctl.eeOriTask->orientation(Eigen::Matrix3d::Identity(3,3));
+  ctl.getPostureTask(ctl.robot().name())->weight(1000);
 
   ctl.reset({ctl.realRobots().robot().mbc().q});
 
@@ -33,7 +38,7 @@ bool humanLikeController_Interaction::run(mc_control::fsm::Controller & ctl_)
   if (target_mutex.try_lock()){
     // ctl.eePosTask->reset();
     // ctl.eeOriTask->reset();
-    ctl.eePosTask->position(linearVel);
+    ctl.eePosTask->refVel(linearVel);
     // ctl.eeOriTask->refVel(angularVel);
     target_mutex.unlock();
   }

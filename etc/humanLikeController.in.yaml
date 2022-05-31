@@ -46,6 +46,9 @@ transitions:
 # Initial state
 init: Released
 
+PosTask:
+  target: [0.0, 0.0, 0.0]
+
 TorqueMode:
   stiffness: 1
   damping: 0
