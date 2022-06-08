@@ -6,19 +6,19 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
   solver().addConstraintSet(dynamicsConstraint);
 
   getPostureTask(robot().name())->stiffness(0.0);
-  getPostureTask(robot().name())->damping(4*sqrt(5));
+  getPostureTask(robot().name())->damping(2*sqrt(5));
 
   eePosTask = std::make_shared<mc_tasks::PositionTask>(robot().frame("Arm"));
   eeOriTask = std::make_shared<mc_tasks::OrientationTask>(robot().frame("Arm"));
-  Eigen::Vector3d stifVec;
-  stifVec << 0, 500, 500;
-  Eigen::Vector3d dampVec;
-  dampVec << 400, 50, 50;
-  eePosTask->stiffness(stifVec);
-  eePosTask->damping(dampVec);
-  eeOriTask->setGains(100,0);
-  eePosTask->weight(20000);
-  eeOriTask->weight(5000);
+
+
+  // Position task parameters
+  eePosTask->setGains(1,100);
+  eePosTask->weight(50000);
+
+  // Orientation task parameters
+  eeOriTask->setGains(10,0);
+  eeOriTask->weight(50000);
 
   logger().addLogEntry("EE_Pos_Task_eval", [this]() {return eePosTask->eval();});
   logger().addLogEntry("EE_Pos_Task_refVel", [this]() {return eePosTask->refVel();});

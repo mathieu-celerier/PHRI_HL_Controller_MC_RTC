@@ -22,9 +22,12 @@ void humanLikeController_Interaction::start(mc_control::fsm::Controller & ctl_)
   ctl.eePosTask->reset();
   ctl.eeOriTask->reset();
   ctl.eePosTask->refVel(linearVel);
+  ctl.eeOriTask->refVel(angularVel);
   ctl.eePosTask->position(targetPos);
-  ctl.eeOriTask->orientation(Eigen::Matrix3d::Identity(3,3));
-  ctl.getPostureTask(ctl.robot().name())->weight(1000);
+  Eigen::Matrix3d oriTarget;
+  // oriTarget << 1,0,0,0,0,-1,0,1,0;
+  oriTarget << 1,0,0,0,1,0,0,0,1;
+  ctl.eeOriTask->orientation(oriTarget);
 
   ctl.reset({ctl.realRobots().robot().mbc().q});
 
@@ -39,7 +42,7 @@ bool humanLikeController_Interaction::run(mc_control::fsm::Controller & ctl_)
     // ctl.eePosTask->reset();
     // ctl.eeOriTask->reset();
     ctl.eePosTask->refVel(linearVel);
-    // ctl.eeOriTask->refVel(angularVel);
+    ctl.eeOriTask->refVel(angularVel);
     target_mutex.unlock();
   }
 
@@ -60,7 +63,7 @@ void humanLikeController_Interaction::teardown(mc_control::fsm::Controller & ctl
   auto & ctl = static_cast<PHRI_HLController &>(ctl_);
 
   ctl.solver().removeTask(ctl.eePosTask);
-  // ctl.solver().removeTask(ctl.eeOriTask);
+  ctl.solver().removeTask(ctl.eeOriTask);
 
   runThread = false;
   thread->join();
@@ -80,7 +83,7 @@ void humanLikeController_Interaction::updateVelTargetCallback(const geometry_msg
 
 void humanLikeController_Interaction::get_ee_velocity_target(double dt) {
   ros::NodeHandle node;
-  ros::Subscriber sub = node.subscribe("target_twist",10,&humanLikeController_Interaction::updateVelTargetCallback,this);
+  ros::Subscriber sub = node.subscribe("target_twist",1,&humanLikeController_Interaction::updateVelTargetCallback,this);
 
   ros::Rate rate(1.0/dt);
   while(runThread){
