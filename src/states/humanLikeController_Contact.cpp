@@ -1,6 +1,6 @@
 #include "humanLikeController_Contact.h"
 
-#include "../PHRI_HLController.h"
+#include <hl_controller/PHRI_HLController.h>
 
 void humanLikeController_Contact::configure(const mc_rtc::Configuration & config)
 {

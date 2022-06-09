@@ -1,4 +1,4 @@
-#include "PHRI_HLController.h"
+#include <hl_controller/PHRI_HLController.h>
 
 PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, const mc_rtc::Configuration & config)
 : mc_control::fsm::Controller(rm, dt, config)
@@ -13,11 +13,11 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
 
 
   // Position task parameters
-  eePosTask->setGains(1,100);
+  eePosTask->setGains(0,10);
   eePosTask->weight(50000);
 
   // Orientation task parameters
-  eeOriTask->setGains(10,0);
+  eeOriTask->setGains(0,10);
   eeOriTask->weight(50000);
 
   logger().addLogEntry("EE_Pos_Task_eval", [this]() {return eePosTask->eval();});

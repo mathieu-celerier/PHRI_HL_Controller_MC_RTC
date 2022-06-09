@@ -1,9 +1,9 @@
 #pragma once
 
 #include <thread>
-#include <ros/ros.h>
-#include <geometry_msgs/Twist.h>
 #include <mc_control/fsm/State.h>
+
+#include <hl_controller/PPCTask.h>
 
 struct humanLikeController_Interaction : mc_control::fsm::State
 {
@@ -15,13 +15,7 @@ struct humanLikeController_Interaction : mc_control::fsm::State
 
     void teardown(mc_control::fsm::Controller & ctl) override;
 private:
-    void updateVelTargetCallback(const geometry_msgs::Twist& twist_msg);
-    void get_ee_velocity_target(double dt);
-
-    std::thread* thread;
-
-    std::mutex target_mutex;
+    PPCTask* p_PPCTask;
     Eigen::Vector3d linearVel;
     Eigen::Vector3d angularVel;
-    bool runThread;
 };

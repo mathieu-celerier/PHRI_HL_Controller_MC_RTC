@@ -1,9 +1,12 @@
 set(controller_SRC
   PHRI_HLController.cpp
+  PPCTask.cpp
 )
 
 set(controller_HDR
-  PHRI_HLController.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/hl_controller/PHRI_HLController.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/hl_controller/PPCTask.h
+  ${CMAKE_CURRENT_SOURCE_DIR}/../include/hl_controller/utils/eigen_utils.h
 )
 
 add_library(${PROJECT_NAME} SHARED ${controller_SRC} ${controller_HDR})

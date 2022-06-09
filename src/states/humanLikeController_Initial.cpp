@@ -1,6 +1,6 @@
 #include "humanLikeController_Initial.h"
 
-#include "../PHRI_HLController.h"
+#include <hl_controller/PHRI_HLController.h>
 
 void humanLikeController_Initial::configure(const mc_rtc::Configuration & config)
 {
