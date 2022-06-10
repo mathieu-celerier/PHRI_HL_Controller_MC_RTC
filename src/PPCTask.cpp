@@ -4,11 +4,13 @@ PPCTask::PPCTask(double timestep,Eigen::Vector3d _initPos,Eigen::Quaterniond _in
     Eigen::Vector6d _rho_inf,Eigen::Vector6d _kp,Eigen::Vector6d _M,Eigen::Vector6d _targetVelocity,double _modulated_error_limit
 ) : dt(timestep),initPos(_initPos),initOrientation(_initOrientation),targetPos(_targetPos),targetOrientation(_targetOrientation),Td(reachingTime),rho_inf(_rho_inf),kp(_kp),M(_M),targetVelocity(_targetVelocity),modulated_error_limit(_modulated_error_limit),t(0)
 {
+    maxVel << 2,2,2,0.5,0.5,0.5;
+
     error_zero.head<3>() = targetPos - initPos;
     error_zero.tail<3>() = initOrientation.w()*targetOrientation.vec() - targetOrientation.w()*initOrientation.vec() - skew(targetOrientation.vec())*initOrientation.vec();
 
+    rho_zero = 2*(error_zero.cwiseAbs() + rho_inf);
     compute_performance_function();
-    rho_zero = rho;
 }
 
 void PPCTask::compute_performance_function(void)
@@ -75,6 +77,26 @@ void PPCTask::compute_nuT(void)
     nuT = vec_nuT.asDiagonal();
 }
 
+Eigen::Vector6d PPCTask::getError(void)
+{
+    return error;
+}
+
+Eigen::Vector6d PPCTask::getUpBound(void)
+{
+    return rho;
+}
+
+Eigen::Vector6d PPCTask::getLowBound(void)
+{
+    return -rho;
+}
+
+Eigen::Vector6d PPCTask::getCommand(void)
+{
+    return command;
+}
+
 Eigen::Vector3d PPCTask::getLinearVelocityCommand(void)
 {
     return command.head<3>();
@@ -89,7 +111,7 @@ bool PPCTask::eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrient
 {
     // Compute current pose error
     error.head<3>() = targetPos - currentPose;
-    error.tail<3>() = currentOrientation.w()*targetOrientation.vec() - targetOrientation.w()*currentOrientation.vec() - skew(targetOrientation.vec())*currentOrientation.vec();
+    error.tail<3>() = sva::rotationError(currentOrientation.toRotationMatrix(),targetOrientation.toRotationMatrix());
 
     // Compute PPC components
     compute_performance_function();
@@ -104,6 +126,8 @@ bool PPCTask::eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrient
     t += dt;
 
     command = a*error + k.asDiagonal()*nuT*epsilon - targetVelocity;
+    command = command.cwiseMin(maxVel).cwiseMax(-maxVel);
+    // std::cout << command.transpose() << std::endl;
 
     return true;
 }

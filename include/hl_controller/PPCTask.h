@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdlib.h>
+#include <iostream>
 #include <SpaceVecAlg/SpaceVecAlg>
 #include <algorithm>
 
@@ -24,6 +26,10 @@ public:
     );
 
     // Getter/Setter
+    Eigen::Vector6d getError(void);
+    Eigen::Vector6d getUpBound(void);
+    Eigen::Vector6d getLowBound(void);
+    Eigen::Vector6d getCommand(void);
     Eigen::Vector3d getLinearVelocityCommand(void);
     Eigen::Vector3d getAngularVelocityCommand(void);
 
@@ -61,6 +67,7 @@ private:
     Eigen::Vector3d Md; // Impedance model acceleration parameter
     Eigen::Vector3d Bd; // Impedance model velocity parameter
     Eigen::Vector3d Kd; // Impedance model position parameter
+    Eigen::Vector6d maxVel;
 
     // PPC properties
     Eigen::Vector6d error; // Current Task error
