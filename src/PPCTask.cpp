@@ -4,13 +4,16 @@ PPCTask::PPCTask(double timestep,Eigen::Vector3d _initPos,Eigen::Quaterniond _in
     Eigen::Vector6d _rho_inf,Eigen::Vector6d _kp,Eigen::Vector6d _M,Eigen::Vector6d _targetVelocity,double _modulated_error_limit
 ) : dt(timestep),initPos(_initPos),initOrientation(_initOrientation),targetPos(_targetPos),targetOrientation(_targetOrientation),Td(reachingTime),rho_inf(_rho_inf),kp(_kp),M(_M),targetVelocity(_targetVelocity),modulated_error_limit(_modulated_error_limit),t(0)
 {
-    maxVel << 2,2,2,0.5,0.5,0.5;
+    maxVel << 2,2,2,2,2,2;
+    command = Eigen::Vector6d::Zero();
 
     error_zero.head<3>() = targetPos - initPos;
     error_zero.tail<3>() = initOrientation.w()*targetOrientation.vec() - targetOrientation.w()*initOrientation.vec() - skew(targetOrientation.vec())*initOrientation.vec();
+    error = error_zero;
 
     rho_zero = 2*(error_zero.cwiseAbs() + rho_inf);
     compute_performance_function();
+    compute_performance_function_derivative();
 }
 
 void PPCTask::compute_performance_function(void)

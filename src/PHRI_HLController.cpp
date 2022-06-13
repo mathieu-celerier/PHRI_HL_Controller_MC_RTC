@@ -17,13 +17,13 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
   eePosTask->weight(50000);
 
   // Orientation task parameters
-  eeOriTask->setGains(10,0);
+  eeOriTask->setGains(10,10);
   eeOriTask->weight(50000);
 
   logger().addLogEntry("EE_Pos_Task_eval", [this]() {return eePosTask->eval();});
   logger().addLogEntry("EE_Pos_Task_refVel", [this]() {return eePosTask->refVel();});
-  logger().addLogEntry("EE_Ori_Task_eval", [this]() {return eePosTask->eval();});
-  logger().addLogEntry("EE_Ori_Task_refVel", [this]() {return eePosTask->refVel();});
+  logger().addLogEntry("EE_Ori_Task_eval", [this]() {return eeOriTask->eval();});
+  logger().addLogEntry("EE_Ori_Task_refVel", [this]() {return eeOriTask->refVel();});
 
   mc_rtc::log::success("HumanLike_PHRI_Controller init done ");
 }
