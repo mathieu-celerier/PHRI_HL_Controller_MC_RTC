@@ -2,8 +2,7 @@
 
 #include <mc_control/mc_controller.h>
 #include <mc_control/fsm/Controller.h>
-#include <mc_tasks/PositionTask.h>
-#include <mc_tasks/OrientationTask.h>
+#include <mc_tasks/EndEffectorTask.h>
 #include <mc_rtc/ros.h>
 
 #include "api.h"
@@ -21,8 +20,7 @@ struct PHRI_HLController_DLLAPI PHRI_HLController : public mc_control::fsm::Cont
 
     void computeTorques();
 
-    std::shared_ptr<mc_tasks::PositionTask> eePosTask;
-    std::shared_ptr<mc_tasks::OrientationTask> eeOriTask;
+    std::shared_ptr<mc_tasks::EndEffectorTask> eeTask;
 private:
     mc_rtc::Configuration config_;
 };

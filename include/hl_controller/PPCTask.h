@@ -18,11 +18,11 @@ public:
         Eigen::Vector3d _targetPos,
         Eigen::Quaterniond _targetOrientation,
         double reachingTime,
-        Eigen::Vector6d rho_inf,
-        Eigen::Vector6d kp,
-        Eigen::Vector6d M = Eigen::Vector6d::Ones(),
-        Eigen::Vector6d targetVelocity = Eigen::Vector6d::Zero(),
-        double modulated_error_limit = 1-1e-9
+        Eigen::Vector6d _rho_inf,
+        double _kp,
+        Eigen::Vector6d _M = Eigen::Vector6d::Ones(),
+        Eigen::Vector6d _targetVelocity = Eigen::Vector6d::Zero(),
+        double _modulated_error_limit = 1-1e-9
     );
 
     // Getter/Setter
@@ -30,6 +30,9 @@ public:
     Eigen::Vector6d getUpBound(void);
     Eigen::Vector6d getLowBound(void);
     Eigen::Vector6d getCommand(void);
+    Eigen::Vector6d getModErr(void);
+    Eigen::Vector6d getAE(void);
+    Eigen::Vector6d getKpNu(void);
     Eigen::Vector3d getLinearVelocityCommand(void);
     Eigen::Vector3d getAngularVelocityCommand(void);
 
@@ -62,7 +65,7 @@ private:
     Eigen::Vector6d rho_zero; // Performance bound starting value
     Eigen::Vector6d rho_inf; // Performance bound target value
     Eigen::Vector6d M; // Lower bound factor 0 < M <= 1
-    Eigen::Vector6d kp; // Control gain for boundaries repulsive component
+    double kp; // Control gain for boundaries repulsive component
     double modulated_error_limit; // Prevent values >= 1 and so log compute error
     Eigen::Vector3d Md; // Impedance model acceleration parameter
     Eigen::Vector3d Bd; // Impedance model velocity parameter
@@ -78,4 +81,6 @@ private:
     Eigen::Matrix6d a;
     Eigen::Matrix6d nuT;
     Eigen::Vector6d command; // Current desired velocity
+    Eigen::Vector6d ae; // Static error term
+    Eigen::Vector6d kpnueps; // Transformed error term
 };

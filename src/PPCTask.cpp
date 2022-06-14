@@ -1,17 +1,20 @@
 #include <hl_controller/PPCTask.h>
 
 PPCTask::PPCTask(double timestep,Eigen::Vector3d _initPos,Eigen::Quaterniond _initOrientation,Eigen::Vector3d _targetPos,Eigen::Quaterniond _targetOrientation,double reachingTime,
-    Eigen::Vector6d _rho_inf,Eigen::Vector6d _kp,Eigen::Vector6d _M,Eigen::Vector6d _targetVelocity,double _modulated_error_limit
-) : dt(timestep),initPos(_initPos),initOrientation(_initOrientation),targetPos(_targetPos),targetOrientation(_targetOrientation),Td(reachingTime),rho_inf(_rho_inf),kp(_kp),M(_M),targetVelocity(_targetVelocity),modulated_error_limit(_modulated_error_limit),t(0)
+    Eigen::Vector6d _rho_inf,double _kp,Eigen::Vector6d _M,Eigen::Vector6d _targetVelocity,double _modulated_error_limit
+) : t(0),dt(timestep),initPos(_initPos),initOrientation(_initOrientation),targetPos(_targetPos),targetOrientation(_targetOrientation),Td(reachingTime),rho_inf(_rho_inf),kp(_kp),M(_M),targetVelocity(_targetVelocity),modulated_error_limit(_modulated_error_limit)
 {
-    maxVel << 2,2,2,2,2,2;
+    maxVel << 0.25,0.25,0.25,0.5,0.5,0.5;
     command = Eigen::Vector6d::Zero();
+    ae = Eigen::Vector6d::Zero();
+    kpnueps = Eigen::Vector6d::Zero();
 
     error_zero.head<3>() = targetPos - initPos;
     error_zero.tail<3>() = initOrientation.w()*targetOrientation.vec() - targetOrientation.w()*initOrientation.vec() - skew(targetOrientation.vec())*initOrientation.vec();
     error = error_zero;
 
     rho_zero = 2*(error_zero.cwiseAbs() + rho_inf);
+    modulated_error = error_zero.array()/rho_zero.array();
     compute_performance_function();
     compute_performance_function_derivative();
 }
@@ -100,6 +103,21 @@ Eigen::Vector6d PPCTask::getCommand(void)
     return command;
 }
 
+Eigen::Vector6d PPCTask::getModErr(void)
+{
+    return modulated_error;
+}
+
+Eigen::Vector6d PPCTask::getAE(void)
+{
+    return ae;
+}
+
+Eigen::Vector6d PPCTask::getKpNu(void)
+{
+    return kpnueps;
+}
+
 Eigen::Vector3d PPCTask::getLinearVelocityCommand(void)
 {
     return command.head<3>();
@@ -113,23 +131,36 @@ Eigen::Vector3d PPCTask::getAngularVelocityCommand(void)
 bool PPCTask::eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrientation)
 {
     // Compute current pose error
-    error.head<3>() = targetPos - currentPose;
-    error.tail<3>() = sva::rotationError(currentOrientation.toRotationMatrix(),targetOrientation.toRotationMatrix());
+    error.head<3>() = currentPose - targetPos;
+    error.tail<3>() = sva::rotationError(targetOrientation.toRotationMatrix(),currentOrientation.toRotationMatrix());
 
     // Compute PPC components
     compute_performance_function();
     compute_performance_function_derivative();
-    modulated_error = error.array()/rho.array();
-    compute_transformed_error();
+    modulated_error = error.array()/rho.array(); // Compute e/rho
+    compute_transformed_error(); // Compute eps
     compute_a();
     compute_nuT();
 
-    Eigen::Vector6d k = (t >= Td) ? kp : 1*kp; // Variable kp if needed
+    double k = (t < Td) ? kp : 1*kp; // Variable kp if needed
 
     t += dt;
 
-    command = a*error + k.asDiagonal()*nuT*epsilon - targetVelocity;
+    ae = a*error;
+    kpnueps = k*nuT*epsilon;
+
+    command = -(ae + kpnueps - targetVelocity);
     command = command.cwiseMin(maxVel).cwiseMax(-maxVel);
+    // std::cout << "===================================" << std::endl;
+    // std::cout << error_zero.transpose() << std::endl;
+    // std::cout << error.transpose() << std::endl;
+    // std::cout << rho.transpose() << std::endl;
+    // std::cout << dRho.transpose() << std::endl;
+    // std::cout << modulated_error.transpose() << std::endl;
+    // std::cout << a << std::endl;
+    // std::cout << k << std::endl;
+    // std::cout << nuT << std::endl;
+    // std::cout << epsilon.transpose() << std::endl;
     // std::cout << command.transpose() << std::endl;
 
     return true;

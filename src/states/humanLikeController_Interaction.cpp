@@ -16,30 +16,31 @@ void humanLikeController_Interaction::start(mc_control::fsm::Controller & ctl_)
   Eigen::Quaterniond targetOri = ctl.config()("PosTask")("targetOrientation");
   double reachingTime = ctl.config()("PosTask")("duration");
   Eigen::Vector6d rhoInf = ctl.config()("PosTask")("max_error");
-  Eigen::Vector6d k = ctl.config()("PosTask")("kp");
+  double k = ctl.config()("PosTask")("kp");
 
-  Eigen::Vector3d initPose;
-  Eigen::Quaterniond initOri;
+  sva::PTransformd initPose;
 
-  ctl.solver().addTask(ctl.eePosTask);
-  ctl.solver().addTask(ctl.eeOriTask);
-  ctl.eePosTask->reset();
-  ctl.eeOriTask->reset();
-  initPose = ctl.eePosTask->position();
-  initOri = Eigen::Quaterniond(ctl.eeOriTask->orientation());
-  ctl.eePosTask->refVel(Eigen::Vector3d::Zero());
-  ctl.eeOriTask->refVel(Eigen::Vector3d::Zero());
-  ctl.eePosTask->position(targetPos);
-  ctl.eeOriTask->orientation(targetOri.toRotationMatrix());
+  ctl.solver().addTask(ctl.eeTask);
+  ctl.eeTask->reset();
+  initPose = ctl.eeTask->get_ef_pose();
+  // initOri = Eigen::Quaterniond(ctl.eeOriTask->orientation());
+  ctl.eeTask->positionTask->refVel(Eigen::Vector3d::Zero());
+  ctl.eeTask->orientationTask->refVel(Eigen::Vector3d::Zero());
+  ctl.eeTask->positionTask->position(targetPos);
+  ctl.eeTask->orientationTask->orientation(targetOri.toRotationMatrix());
 
-  p_PPCTask = new PPCTask(ctl.timeStep, initPose, initOri, targetPos, targetOri, reachingTime,rhoInf,k);
+  p_PPCTask = new PPCTask(ctl.timeStep, initPose.translation(), Eigen::Quaterniond(initPose.rotation()), targetPos, targetOri, reachingTime,rhoInf,k);
 
   ctl.reset({ctl.realRobots().robot().mbc().q});
+  ctl.getPostureTask(ctl.robot().name())->weight(0);
 
   ctl.logger().addLogEntry("PPC_error", [this]() {return p_PPCTask->getError();});
   ctl.logger().addLogEntry("PPC_lower bound", [this]() {return p_PPCTask->getLowBound();});
   ctl.logger().addLogEntry("PPC_upper bound", [this]() {return p_PPCTask->getUpBound();});
   ctl.logger().addLogEntry("PPC_command", [this]() {return p_PPCTask->getCommand();});
+  ctl.logger().addLogEntry("PPC_mod err", [this]() {return p_PPCTask->getModErr();});
+  ctl.logger().addLogEntry("PPC_ae", [this]() {return p_PPCTask->getAE();});
+  ctl.logger().addLogEntry("PPC_kpnueps", [this]() {return p_PPCTask->getKpNu();});
 }
 
 bool humanLikeController_Interaction::run(mc_control::fsm::Controller & ctl_)
@@ -52,8 +53,8 @@ bool humanLikeController_Interaction::run(mc_control::fsm::Controller & ctl_)
   linearVel = p_PPCTask->getLinearVelocityCommand();
   angularVel = p_PPCTask->getAngularVelocityCommand();
 
-  ctl.eePosTask->refVel(linearVel);
-  ctl.eeOriTask->refVel(angularVel);
+  ctl.eeTask->positionTask->refVel(linearVel);
+  ctl.eeTask->orientationTask->refVel(angularVel);
 
   if(ctl.config().has("switch"))
   {
@@ -77,9 +78,11 @@ void humanLikeController_Interaction::teardown(mc_control::fsm::Controller & ctl
   ctl.logger().removeLogEntry("PPC_lower bound");
   ctl.logger().removeLogEntry("PPC_upper bound");
   ctl.logger().removeLogEntry("PPC_command");
+  ctl.logger().removeLogEntry("PPC_mod err");
+  ctl.logger().removeLogEntry("PPC_ae");
+  ctl.logger().removeLogEntry("PPC_kpnueps");
 
-  ctl.solver().removeTask(ctl.eePosTask);
-  ctl.solver().removeTask(ctl.eeOriTask);
+  ctl.solver().removeTask(ctl.eeTask);
 }
 
 EXPORT_SINGLE_STATE("Interaction", humanLikeController_Interaction)

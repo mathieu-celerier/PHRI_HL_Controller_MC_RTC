@@ -85,5 +85,6 @@
         "/home/mathieu/lib/mc_rtc_setup/catkin_data_ws/devel/lib/python3/dist-packages",
         "/opt/ros/noetic/lib/python3/dist-packages",
         "/usr/local/lib/python2.7/site-packages"
-    ]
+    ],
+    "cmake.configureOnOpen": false
 }
