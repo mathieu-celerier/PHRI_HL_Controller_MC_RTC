@@ -32,7 +32,7 @@ void humanLikeController_Interaction::start(mc_control::fsm::Controller & ctl_)
   p_PPCTask = new PPCTask(ctl.timeStep, initPose.translation(), Eigen::Quaterniond(initPose.rotation()), targetPos, targetOri, reachingTime,rhoInf,k);
 
   ctl.reset({ctl.realRobots().robot().mbc().q});
-  ctl.getPostureTask(ctl.robot().name())->weight(0);
+  ctl.getPostureTask(ctl.robot().name())->weight(1000);
 
   ctl.logger().addLogEntry("PPC_error", [this]() {return p_PPCTask->getError();});
   ctl.logger().addLogEntry("PPC_lower bound", [this]() {return p_PPCTask->getLowBound();});

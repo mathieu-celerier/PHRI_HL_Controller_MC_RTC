@@ -6,19 +6,19 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
   solver().addConstraintSet(dynamicsConstraint);
 
   getPostureTask(robot().name())->stiffness(0.0);
-  getPostureTask(robot().name())->damping(4);
-  getPostureTask(robot().name())->weight(500);
+  getPostureTask(robot().name())->damping(5);
+  getPostureTask(robot().name())->weight(1000);
 
   eeTask = std::make_shared<mc_tasks::EndEffectorTask>(robot().frame("Arm"));
 
 
   // Position task parameters
-  eeTask->positionTask->setGains(2,50);
+  eeTask->positionTask->setGains(0,80);
   eeTask->positionTask->weight(10000);
 
   // Orientation task parameters
-  eeTask->orientationTask->setGains(2,2.8);
-  eeTask->orientationTask->weight(500);
+  eeTask->orientationTask->setGains(0,80);
+  eeTask->orientationTask->weight(10000);
 
   // Orientation task parameters
 
@@ -33,7 +33,7 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
 bool PHRI_HLController::run()
 {
   bool ret = mc_control::fsm::Controller::run(mc_solver::FeedbackType::Joints);
-  computeTorques();
+  // computeTorques();
   return ret;
 }
 
