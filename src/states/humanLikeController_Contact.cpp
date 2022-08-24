@@ -12,6 +12,8 @@ void humanLikeController_Contact::start(mc_control::fsm::Controller & ctl_)
   
   std::cout << "[MC RTC pHRIController] Torque control.\n";
   ctl.reset({ctl.realRobots().robot().mbc().q});
+  ctl.getPostureTask(ctl.robot().name())->weight(100);
+  ctl.getPostureTask(ctl.robot().name())->target(ctl.posture_target);
 }
 
 bool humanLikeController_Contact::run(mc_control::fsm::Controller & ctl_)

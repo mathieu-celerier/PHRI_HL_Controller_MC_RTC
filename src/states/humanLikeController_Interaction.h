@@ -18,4 +18,6 @@ private:
     PPCTask* p_PPCTask;
     Eigen::Vector3d linearVel;
     Eigen::Vector3d angularVel;
+    Eigen::Vector3d stiffness;
+    Eigen::Vector3d damping;
 };

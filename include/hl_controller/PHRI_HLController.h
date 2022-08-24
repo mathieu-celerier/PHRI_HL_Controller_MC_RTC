@@ -21,6 +21,7 @@ struct PHRI_HLController_DLLAPI PHRI_HLController : public mc_control::fsm::Cont
     void computeTorques();
 
     std::shared_ptr<mc_tasks::EndEffectorTask> eeTask;
+    std::map< std::string, std::vector< double >> posture_target;
 private:
     mc_rtc::Configuration config_;
 };

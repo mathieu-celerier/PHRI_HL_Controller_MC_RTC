@@ -5,27 +5,49 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
 {
   solver().addConstraintSet(dynamicsConstraint);
 
-  getPostureTask(robot().name())->stiffness(0.0);
-  getPostureTask(robot().name())->damping(5);
-  getPostureTask(robot().name())->weight(1000);
+  std::vector<double> val(1);
+  // val[0] = 0.677978;
+  val[0] = -0.05;
+  posture_target["right_j0"] = val;
+  val[0] = 0.0;
+  posture_target["head_pan"] = val;
+  // val[0] = -0.0394787;
+  val[0] = 0.87;
+  posture_target["right_j1"] = val;
+  // val[0] = -1.48606;
+  val[0] = -0.08;
+  posture_target["right_j2"] = val;
+  // val[0] = 1.56569;
+  val[0] = -1.85;
+  posture_target["right_j3"] = val;
+  // val[0] = -0.0653148;
+  val[0] = 0.02;
+  posture_target["right_j4"] = val;
+  // val[0] = 0.68418;
+  val[0] = 1.6;
+  posture_target["right_j5"] = val;
+  // val[0] = -1.26174;
+  val[0] = -3.0;
+  posture_target["right_j6"] = val;
+  getPostureTask(robot().name())->target(posture_target);
 
-  eeTask = std::make_shared<mc_tasks::EndEffectorTask>(robot().frame("Arm"));
+  getPostureTask(robot().name())->stiffness(0.0);
+  getPostureTask(robot().name())->damping(35);
+  getPostureTask(robot().name())->weight(100);
+  eeTask = std::make_shared<mc_tasks::EndEffectorTask>(robot().frame("right_hand"));
 
 
   // Position task parameters
-  eeTask->positionTask->setGains(0,80);
+  Eigen::Vector3d stiffness, damping;
+  stiffness << 0, 0, 0;
+  damping << 20, 20, 20;
+  eeTask->positionTask->stiffness(stiffness);
+  eeTask->positionTask->damping(damping);
   eeTask->positionTask->weight(10000);
 
   // Orientation task parameters
-  eeTask->orientationTask->setGains(0,80);
+  eeTask->orientationTask->setGains(20,10);
   eeTask->orientationTask->weight(10000);
-
-  // Orientation task parameters
-
-  logger().addLogEntry("EE_Pos_Task_eval", [this]() {return eeTask->positionTask->eval();});
-  logger().addLogEntry("EE_Pos_Task_refVel", [this]() {return eeTask->positionTask->refVel();});
-  logger().addLogEntry("EE_Ori_Task_eval", [this]() {return eeTask->orientationTask->eval();});
-  logger().addLogEntry("EE_Ori_Task_refVel", [this]() {return eeTask->orientationTask->refVel();});
 
   mc_rtc::log::success("HumanLike_PHRI_Controller init done ");
 }
@@ -33,17 +55,12 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
 bool PHRI_HLController::run()
 {
   bool ret = mc_control::fsm::Controller::run(mc_solver::FeedbackType::Joints);
-  // computeTorques();
+  computeTorques();
   return ret;
 }
 
 void PHRI_HLController::reset(const mc_control::ControllerResetData & reset_data)
 {
-
-  logger().removeLogEntry("EE_Pos_Task_eval");
-  logger().removeLogEntry("EE_Pos_Task_refVel");
-  logger().removeLogEntry("EE_Ori_Task_eval");
-  logger().removeLogEntry("EE_Ori_Task_refVel");
   mc_control::fsm::Controller::reset(reset_data);
 }
 

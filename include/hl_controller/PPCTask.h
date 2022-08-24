@@ -20,12 +20,15 @@ public:
         double reachingTime,
         Eigen::Vector6d _rho_inf,
         double _kp,
+        double _decay,
         Eigen::Vector6d _M = Eigen::Vector6d::Ones(),
         Eigen::Vector6d _targetVelocity = Eigen::Vector6d::Zero(),
         double _modulated_error_limit = 1-1e-9
     );
 
     // Getter/Setter
+    double getTime(void);
+    double getTd(void);
     Eigen::Vector6d getError(void);
     Eigen::Vector6d getUpBound(void);
     Eigen::Vector6d getLowBound(void);
@@ -33,11 +36,16 @@ public:
     Eigen::Vector6d getModErr(void);
     Eigen::Vector6d getAE(void);
     Eigen::Vector6d getKpNu(void);
+    Eigen::Vector6d getKpNuSat(void);
+    Eigen::Vector6d getKpNuFilt(void);
+    Eigen::Vector3d getF(void);
+    Eigen::Vector3d getDisplacement(void);
+    Eigen::Vector3d getTarget(void);
     Eigen::Vector3d getLinearVelocityCommand(void);
     Eigen::Vector3d getAngularVelocityCommand(void);
 
     bool eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrientation);
-    bool eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrientation, Eigen::Vector6d currentWrench);
+    bool eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrientation, sva::ForceVecd currentWrench);
 
 private:
     // PPC methods
@@ -46,6 +54,8 @@ private:
     void compute_transformed_error(void);
     void compute_a(void);
     void compute_nuT(void);
+    void compute_displacement(void);
+    Eigen::Vector6d impedance_model_derivative(Eigen::Vector3d x, Eigen::Vector3d v);
 
 private:
     // Time properties
@@ -66,6 +76,7 @@ private:
     Eigen::Vector6d rho_inf; // Performance bound target value
     Eigen::Vector6d M; // Lower bound factor 0 < M <= 1
     double kp; // Control gain for boundaries repulsive component
+    double decay;
     double modulated_error_limit; // Prevent values >= 1 and so log compute error
     Eigen::Vector3d Md; // Impedance model acceleration parameter
     Eigen::Vector3d Bd; // Impedance model velocity parameter
@@ -81,6 +92,13 @@ private:
     Eigen::Matrix6d a;
     Eigen::Matrix6d nuT;
     Eigen::Vector6d command; // Current desired velocity
+    Eigen::Vector6d saturated_command; // Current desired velocity
     Eigen::Vector6d ae; // Static error term
     Eigen::Vector6d kpnueps; // Transformed error term
+    Eigen::Vector6d saturated_kpnueps;
+    Eigen::Vector6d filtered_kpnueps;
+    Eigen::Vector3d d;
+    Eigen::Vector3d dp;
+
+    Eigen::Vector3d F;
 };
