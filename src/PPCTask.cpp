@@ -5,10 +5,10 @@ PPCTask::PPCTask(double timestep,Eigen::Vector3d _initPos,Eigen::Quaterniond _in
 ) : t(0),dt(timestep),initPos(_initPos),initOrientation(_initOrientation),targetPos(_targetPos),targetOrientation(_targetOrientation),Td(reachingTime),rho_inf(_rho_inf),kp(_kp),decay(_decay),M(_M),targetVelocity(_targetVelocity),modulated_error_limit(_modulated_error_limit)
 {
     Md << 1, 1, 1;
-    Bd << 80, 80, 80;
+    Bd << 60, 60, 60;
     Kd << 200, 200, 200;
 
-    maxVel << 0.2,0.2,0.2,M_PI/4,M_PI/4,M_PI/4;
+    maxVel << 0.1,0.1,0.1,M_PI/4,M_PI/4,M_PI/4;
     command = Eigen::Vector6d::Zero();
     ae = Eigen::Vector6d::Zero();
     kpnueps = Eigen::Vector6d::Zero();
@@ -217,7 +217,7 @@ bool PPCTask::eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrient
     saturated_kpnueps = kpnueps.cwiseMin(maxVel).cwiseMax(-maxVel);
     filtered_kpnueps += decay*(saturated_kpnueps - filtered_kpnueps);
 
-    command = -(ae + saturated_kpnueps - targetVelocity);
+    command = -(ae + filtered_kpnueps - targetVelocity);
     saturated_command = command;
     // std::cout << "===================================" << std::endl;
     // std::cout << error_zero.transpose() << std::endl;
@@ -251,7 +251,7 @@ bool PPCTask::eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrient
 
     // Compute current pose error
     error.head<3>() = currentPose - (targetPos + d);
-    error.tail<3>() = sva::rotationError(targetOrientation.toRotationMatrix(),currentOrientation.toRotationMatrix());
+    error.tail<3>() = Eigen::Vector3d::Zero(); // sva::rotationError(targetOrientation.toRotationMatrix(),currentOrientation.toRotationMatrix());
 
     // Compute PPC components
     compute_performance_function();
@@ -261,7 +261,7 @@ bool PPCTask::eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrient
     compute_a();
     compute_nuT();
 
-    double k = (t < Td) ? kp : 1*kp; // Variable kp if needed
+    double k = (t < Td) ? kp : 0*kp; // Variable kp if needed
 
     t += dt;
 
@@ -270,8 +270,9 @@ bool PPCTask::eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrient
     saturated_kpnueps = kpnueps.cwiseMin(maxVel).cwiseMax(-maxVel);
     filtered_kpnueps += decay*(saturated_kpnueps - filtered_kpnueps);
 
-    command = -(ae + saturated_kpnueps - targetVelocity);
+    command = -(ae + filtered_kpnueps - targetVelocity);
     saturated_command = command;
+    saturated_command[2] = 0.0;
     // std::cout << "===================================" << std::endl;
     // std::cout << error_zero.transpose() << std::endl;
     // std::cout << error.transpose() << std::endl;

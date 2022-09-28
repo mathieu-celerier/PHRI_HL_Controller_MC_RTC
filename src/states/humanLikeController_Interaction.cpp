@@ -28,7 +28,6 @@ void humanLikeController_Interaction::start(mc_control::fsm::Controller & ctl_)
   damping << 20, 20, 20;
   ctl.eeTask->positionTask->stiffness(stiffness);
   ctl.eeTask->positionTask->damping(damping);
-  // initOri = Eigen::Quaterniond(ctl.eeOriTask->orientation());
   ctl.eeTask->positionTask->refVel(Eigen::Vector3d::Zero());
   ctl.eeTask->orientationTask->refVel(Eigen::Vector3d::Zero());
   ctl.eeTask->positionTask->position(targetPos);
@@ -74,10 +73,11 @@ bool humanLikeController_Interaction::run(mc_control::fsm::Controller & ctl_)
 
   double Td = p_PPCTask->getTd();
   double t = p_PPCTask->getTime();
-  double stiff = 0; // std::min(std::max((200.0/1.0)*(t-Td),0.0),200.0);
+  double stiff = std::min(std::max((200.0/1.0)*(t-Td),0.0),200.0);
+  double damp = std::min(std::max(((2*sqrt(200.0) - 20)/1.0)*(t-Td),0.0),(2*sqrt(200.0) - 20));
 
-  stiffness << stiff, stiff, 0;
-  damping << 20, 20, 20;
+  stiffness << stiff, stiff, 100;
+  damping << 20+damp, 20+damp, 20;
   ctl.eeTask->positionTask->stiffness(stiffness);
   ctl.eeTask->positionTask->damping(damping);
 

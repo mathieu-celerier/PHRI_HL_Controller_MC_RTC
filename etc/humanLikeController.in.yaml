@@ -43,6 +43,7 @@ transitions:
   - [Interaction, Release, Released, Auto]
   - [Interaction, MadeContact, InContact, Auto]
   - [Interaction, Interact, Interaction, Auto]
+  - [Released, Interact, Interaction, Auto]
 # Initial state
 init: Released
 

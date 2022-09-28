@@ -39,15 +39,15 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
 
   // Position task parameters
   Eigen::Vector3d stiffness, damping;
-  stiffness << 0, 0, 0;
+  stiffness << 0, 0, 100;
   damping << 20, 20, 20;
   eeTask->positionTask->stiffness(stiffness);
   eeTask->positionTask->damping(damping);
   eeTask->positionTask->weight(10000);
 
   // Orientation task parameters
-  eeTask->orientationTask->setGains(20,10);
-  eeTask->orientationTask->weight(10000);
+  eeTask->orientationTask->setGains(100,20);
+  eeTask->orientationTask->weight(0);
 
   mc_rtc::log::success("HumanLike_PHRI_Controller init done ");
 }
