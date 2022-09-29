@@ -59,7 +59,7 @@ bool humanLikeController_Interaction::run(mc_control::fsm::Controller & ctl_)
 {
   auto & ctl = static_cast<PHRI_HLController &>(ctl_);
 
-  sva::PTransformd currentPose =  ctl.robot().frame("right_hand").position();
+  sva::PTransformd currentPose =  ctl.robot().frame("tool_frame").position();
   // std::cout << ctl.robot().forceSensors()[0].worldWrenchWithoutGravity(ctl.robot()) << std::endl;
   p_PPCTask->eval(currentPose.translation(),Eigen::Quaterniond(currentPose.rotation()),ctl.robot().forceSensors()[0].worldWrenchWithoutGravity(ctl.robot()));
   ctl.eeTask->positionTask->position(p_PPCTask->getTarget());

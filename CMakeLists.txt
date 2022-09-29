@@ -16,7 +16,7 @@ endif()
 
 # To use ros
 find_package(catkin REQUIRED COMPONENTS roscpp)
-catkin_package(CATKIN_DEPENDS geometry_msgs roscpp roslib std_msgs)
+catkin_package(CATKIN_DEPENDS geometry_msgs roscpp roslib std_msgs hl_phri_exp)
 include_directories(include ${catkin_INCLUDE_DIRS} $ENV{HOME}/.local/include)
 link_directories(${catkin_LIBRARY_DIRS} $ENV{HOME}/.local/lib)
 

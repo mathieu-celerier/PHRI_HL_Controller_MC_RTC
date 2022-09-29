@@ -1,11 +1,11 @@
 #pragma once
 
 #include <mc_control/fsm/State.h>
+#include <hl_controller/MCGameState.h>
 
-#include <hl_controller/PPCTask.h>
-
-struct humanLikeController_Interaction : mc_control::fsm::State
+struct humanLikeController_Policy : mc_control::fsm::State
 {
+
     void configure(const mc_rtc::Configuration & config) override;
 
     void start(mc_control::fsm::Controller & ctl) override;
@@ -14,9 +14,4 @@ struct humanLikeController_Interaction : mc_control::fsm::State
 
     void teardown(mc_control::fsm::Controller & ctl) override;
 private:
-    PPCTask* p_PPCTask;
-    Eigen::Vector3d linearVel;
-    Eigen::Vector3d angularVel;
-    Eigen::Vector3d stiffness;
-    Eigen::Vector3d damping;
 };

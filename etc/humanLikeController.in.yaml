@@ -23,9 +23,7 @@ robots:
 # General constraints, always on
 constraints:
   - type: contact
-# - type: dynamics
-#   damper: [0.1, 0.01, 0.5]
-# - type: compoundJoint
+
 # Collision constraint
 collisions:
 - type: collision
@@ -44,15 +42,9 @@ transitions:
   - [Interaction, MadeContact, InContact, Auto]
   - [Interaction, Interact, Interaction, Auto]
   - [Released, Interact, Interaction, Auto]
+
 # Initial state
 init: Released
-
-PosTask:
-  target: [0.0, 0.0, 0.0]
-
-TorqueMode:
-  stiffness: 1
-  damping: 0
 
 ObserverPipelines:
 - name: PHRIPipeline
