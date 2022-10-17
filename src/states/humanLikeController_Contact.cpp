@@ -11,7 +11,7 @@ void humanLikeController_Contact::start(mc_control::fsm::Controller & ctl_)
   auto & ctl = static_cast<PHRI_HLController &>(ctl_);
   
   std::cout << "[MC RTC pHRIController] Torque control.\n";
-  ctl.reset({ctl.realRobots().robot().mbc().q});
+  // ctl.reset({ctl.realRobots().robot().mbc().q});
   ctl.getPostureTask(ctl.robot().name())->weight(100);
   ctl.getPostureTask(ctl.robot().name())->target(ctl.posture_target);
 }
@@ -20,13 +20,20 @@ bool humanLikeController_Contact::run(mc_control::fsm::Controller & ctl_)
 {
   auto & ctl = static_cast<PHRI_HLController &>(ctl_);
   
-  if(ctl.config().has("switch"))
+  if(ctl.datastore().has("getPolicyState"))
   {
-    std::string out = ctl.config()("switch");
-    ctl.config().remove("switch");
-    output(out);
-    
-    return true;
+    ctrl_states state = ctl.datastore().call<ctrl_states>("getPolicyState");
+    switch(state)
+    {
+      case Released:
+        output("Release");
+        return true;
+      case Active:
+        output("Interact");
+        return true;
+      default:
+        break;
+    }
   }
   
   return false;

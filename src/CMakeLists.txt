@@ -15,9 +15,9 @@ set(controller_HDR
 )
 
 add_library(${PROJECT_NAME} SHARED ${controller_SRC} ${controller_HDR})
-add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "-DPHRI_HLController_EXPORTS")
 target_link_libraries(${PROJECT_NAME} PUBLIC mc_rtc::mc_control_fsm mc_rtc::mc_rtc_ros)
+add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION "${MC_RTC_LIBDIR}"
   LIBRARY DESTINATION "${MC_RTC_LIBDIR}"

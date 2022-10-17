@@ -2,11 +2,11 @@
 #include <vector>
 
 #include <hl_controller/MCGamePiece.h>
-// #include <hl_phri_exp/GameState.h>
+#include <hl_phri_exp/GameState.h>
 
 class MCGameState
 {
-private:
+public:
     std::string status;
     short unsigned int maxPiece;
     short unsigned int totalTime;
@@ -21,5 +21,6 @@ private:
     std::vector<MCGamePiece> pieces;
 public:
     MCGameState();
+    MCGameState(hl_phri_exp::GameState msg);
     ~MCGameState();
 };

@@ -8,14 +8,37 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
   getPostureTask(robot().name())->damping(35);
   getPostureTask(robot().name())->weight(100);
   eeTask = std::make_shared<mc_tasks::EndEffectorTask>(robot().frame("tool_frame"));
+  datastore().make<std::string>("ControlMode","");
+
+  logger().addLogEntry("ControlMode",
+    [this]() {
+      auto mode = datastore().get<std::string>("ControlMode");
+      if (mode.compare("") == 0) return 0;
+      if (mode.compare("Position") == 0) return 1;
+      if (mode.compare("Velocity") == 0) return 2;
+      if (mode.compare("Torque") == 0) return 3;
+      return 0;
+    }
+  );
 
   mc_rtc::log::success("HumanLike_PHRI_Controller init done ");
 }
 
 bool PHRI_HLController::run()
 {
-  bool ret = mc_control::fsm::Controller::run(mc_solver::FeedbackType::Joints);
-  computeTorques();
+  auto ctrl_mode = datastore().get<std::string>("ControlMode");
+  bool ret;
+
+  if (ctrl_mode.compare("Position") == 0)
+  {
+    ret = mc_control::fsm::Controller::run(mc_solver::FeedbackType::OpenLoop);
+  }
+  else
+  {
+    ret = mc_control::fsm::Controller::run(mc_solver::FeedbackType::ClosedLoopIntegrateReal);
+    //computeTorques();
+  }
+
   return ret;
 }
 

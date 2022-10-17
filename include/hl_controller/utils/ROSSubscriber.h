@@ -7,6 +7,8 @@
 #include <std_msgs/Bool.h>
 #include <std_msgs/Float32MultiArray.h>
 #include <std_msgs/Float64.h>
+#include <hl_phri_exp/GameState.h>
+#include <hl_controller/MCGameState.h>
 #include <mutex>
 #include <thread>
 
@@ -185,4 +187,9 @@ struct ROSMultiArraySubscriber : public ROSSubscriber<std_msgs::Float32MultiArra
 struct ROSFloatSubscriber : public ROSSubscriber<std_msgs::Float64, double>
 {
   ROSFloatSubscriber() : ROSSubscriber([](const std_msgs::Float64 & msg) { return msg.data; }) {}
+};
+
+struct ROSGameStateSubscriber : public ROSSubscriber<hl_phri_exp::GameState, MCGameState>
+{
+  ROSGameStateSubscriber() : ROSSubscriber([](const hl_phri_exp::GameState & msg) { return MCGameState(msg); }) {}
 };

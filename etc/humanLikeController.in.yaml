@@ -33,20 +33,39 @@ collisions:
 states:
   DoNothing:
     base: MetaTasks
-# Transitions map
+
+  ControlModesFSM:
+    base: Meta
+    transitions:
+      - [Released, MadeContact, InContact, Auto]
+      - [Released, Interact, Interaction, Auto]
+      - [InContact, Release, Released, Auto]
+      - [InContact, Interact, Interaction, Auto]
+      - [Interaction, Release, Released, Auto]
+      - [Interaction, MadeContact, InContact, Auto]
+      - [Interaction, Interact, Interaction, Auto]
+      
+
+  Manager:
+    base: Parallel
+    states: [Policy, ControlModesFSM]
+
 transitions:
-  - [Released, MadeContact, InContact, Auto]
-  - [InContact, Release, Released, Auto]
-  - [InContact, Interact, Interaction, Auto]
-  - [Interaction, Release, Released, Auto]
-  - [Interaction, MadeContact, InContact, Auto]
-  - [Interaction, Interact, Interaction, Auto]
-  - [Released, Interact, Interaction, Auto]
+- [Manager, OK, Manager, Strict]
 
 # Initial state
-init: Released
+init: Manager
 
 ObserverPipelines:
 - name: PHRIPipeline
   observers:
     - type: Encoder
+      config:
+        velocity: encoderVelocities
+
+PPCTask:
+  speed: 0.02
+  minDuration: 0.25
+  rhoInf: [0.01,0.01,0.01,0.1,0.1,0.1]
+  kp: 0.0001
+  filterDecay: 1

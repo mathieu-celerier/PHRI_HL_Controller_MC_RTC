@@ -3,6 +3,9 @@
 #include <mc_control/fsm/State.h>
 
 #include <hl_controller/PPCTask.h>
+#include "humanLikeController_Policy.h"
+
+#define MAX_STIFF 100.0
 
 struct humanLikeController_Interaction : mc_control::fsm::State
 {

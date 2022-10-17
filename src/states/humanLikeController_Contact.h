@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mc_control/fsm/State.h>
+#include "humanLikeController_Policy.h"
 
 struct humanLikeController_Contact : mc_control::fsm::State
 {

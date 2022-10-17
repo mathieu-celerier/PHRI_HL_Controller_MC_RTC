@@ -8,7 +8,7 @@ PPCTask::PPCTask(double timestep,Eigen::Vector3d _initPos,Eigen::Quaterniond _in
     Bd << 60, 60, 60;
     Kd << 200, 200, 200;
 
-    maxVel << 0.1,0.1,0.1,M_PI/4,M_PI/4,M_PI/4;
+    maxVel << 1,1,1,M_PI/4,M_PI/4,M_PI/4;
     command = Eigen::Vector6d::Zero();
     ae = Eigen::Vector6d::Zero();
     kpnueps = Eigen::Vector6d::Zero();
@@ -261,7 +261,7 @@ bool PPCTask::eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrient
     compute_a();
     compute_nuT();
 
-    double k = (t < Td) ? kp : 0*kp; // Variable kp if needed
+    double k = (t < Td) ? kp : 1*kp; // Variable kp if needed
 
     t += dt;
 
@@ -272,7 +272,7 @@ bool PPCTask::eval(Eigen::Vector3d currentPose, Eigen::Quaterniond currentOrient
 
     command = -(ae + filtered_kpnueps - targetVelocity);
     saturated_command = command;
-    saturated_command[2] = 0.0;
+    // saturated_command[2] = 0.0;
     // std::cout << "===================================" << std::endl;
     // std::cout << error_zero.transpose() << std::endl;
     // std::cout << error.transpose() << std::endl;

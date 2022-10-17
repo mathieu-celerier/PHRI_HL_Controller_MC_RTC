@@ -1,8 +1,8 @@
-// #include <hl_phri_exp/Piece.h>
+#include <hl_phri_exp/Piece.h>
 
 class MCGamePiece
 {
-private:
+public:
     short unsigned int ID;
     short unsigned int value;
     float x;
@@ -11,5 +11,6 @@ private:
     float timeToCatcher;
 public:
     MCGamePiece();
+    MCGamePiece(hl_phri_exp::Piece& msg);
     ~MCGamePiece();
 };

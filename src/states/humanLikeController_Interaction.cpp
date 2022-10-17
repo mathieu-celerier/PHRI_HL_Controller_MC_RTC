@@ -12,12 +12,15 @@ void humanLikeController_Interaction::start(mc_control::fsm::Controller & ctl_)
 
   std::cout << "[MC RTC pHRIController] Admittance control.\n";
 
-  Eigen::Vector3d targetPos = ctl.config()("PosTask")("targetPose");
-  Eigen::Quaterniond targetOri = ctl.config()("PosTask")("targetOrientation");
-  double reachingTime = ctl.config()("PosTask")("duration");
-  Eigen::Vector6d rhoInf = ctl.config()("PosTask")("max_error");
-  double k = ctl.config()("PosTask")("kp");
-  double decay = ctl.config()("PosTask")("filter_decay");
+  sva::PTransformd targetPose;
+  double reachingTime, k, decay;
+  Eigen::Vector6d rhoInf;
+
+  if (ctl.datastore().has("ppcTargetPose"))   ctl.datastore().get<sva::PTransformd>("ppcTargetPose",targetPose);
+  if (ctl.datastore().has("ppcTd"))           ctl.datastore().get<double>("ppcTd",reachingTime);
+  if (ctl.datastore().has("ppcRhoInf"))       ctl.datastore().get<Eigen::Vector6d>("ppcRhoInf", rhoInf);
+  if (ctl.datastore().has("ppcKp"))           ctl.datastore().get<double>("ppcKp",k);
+  if (ctl.datastore().has("ppcFilterDecay"))  ctl.datastore().get<double>("ppcFilterDecay",decay);
 
   sva::PTransformd initPose;
 
@@ -25,17 +28,22 @@ void humanLikeController_Interaction::start(mc_control::fsm::Controller & ctl_)
   ctl.eeTask->reset();
   initPose = ctl.eeTask->get_ef_pose();
   stiffness << 0, 0, 0;
-  damping << 20, 20, 20;
+  damping << 50, 50, 50;
   ctl.eeTask->positionTask->stiffness(stiffness);
   ctl.eeTask->positionTask->damping(damping);
   ctl.eeTask->positionTask->refVel(Eigen::Vector3d::Zero());
   ctl.eeTask->orientationTask->refVel(Eigen::Vector3d::Zero());
-  ctl.eeTask->positionTask->position(targetPos);
-  ctl.eeTask->orientationTask->orientation(targetOri.toRotationMatrix());
+  ctl.eeTask->positionTask->position(targetPose.translation());
+  ctl.eeTask->orientationTask->orientation(targetPose.rotation());
 
-  p_PPCTask = new PPCTask(ctl.timeStep, initPose.translation(), Eigen::Quaterniond(initPose.rotation()), targetPos, targetOri, reachingTime,rhoInf,k,decay);
+  p_PPCTask = new PPCTask(
+    ctl.timeStep,
+    initPose.translation(), Eigen::Quaterniond(initPose.rotation()),
+    targetPose.translation(), Eigen::Quaterniond(targetPose.rotation()),
+    reachingTime,rhoInf,k,decay
+  );
 
-  ctl.reset({ctl.realRobots().robot().mbc().q});
+  // ctl.reset({ctl.realRobots().robot().mbc().q});
   ctl.getPostureTask(ctl.robot().name())->weight(100);
   ctl.getPostureTask(ctl.robot().name())->target(ctl.posture_target);
 
@@ -71,23 +79,30 @@ bool humanLikeController_Interaction::run(mc_control::fsm::Controller & ctl_)
   ctl.eeTask->positionTask->refVel(linearVel);
   ctl.eeTask->orientationTask->refVel(angularVel);
 
-  double Td = p_PPCTask->getTd();
-  double t = p_PPCTask->getTime();
-  double stiff = std::min(std::max((200.0/1.0)*(t-Td),0.0),200.0);
-  double damp = std::min(std::max(((2*sqrt(200.0) - 20)/1.0)*(t-Td),0.0),(2*sqrt(200.0) - 20));
+  // double Td = p_PPCTask->getTd();
+  // double t = p_PPCTask->getTime();
+  // double stiff = std::min(std::max((MAX_STIFF/1.0)*(t-Td),0.0),MAX_STIFF);
+  // double damp = std::min(std::max(((2*sqrt(MAX_STIFF) - 20)/1.0)*(t-Td),0.0),(2*sqrt(MAX_STIFF) - 20));
 
-  stiffness << stiff, stiff, 100;
-  damping << 20+damp, 20+damp, 20;
-  ctl.eeTask->positionTask->stiffness(stiffness);
-  ctl.eeTask->positionTask->damping(damping);
+  // stiffness << stiff, stiff, 100;
+  // damping << 20+damp, 20+damp, 20;
+  // ctl.eeTask->positionTask->stiffness(stiffness);
+  // ctl.eeTask->positionTask->damping(damping);
 
-  if(ctl.config().has("switch"))
+  if(ctl.datastore().has("getPolicyState"))
   {
-    std::string out = ctl.config()("switch");
-    ctl.config().remove("switch");
-    output(out);
-    
-    return true;
+    ctrl_states state = ctl.datastore().call<ctrl_states>("getPolicyState");
+    switch(state)
+    {
+      case Released:
+        output("Release");
+        return true;
+      case Contact:
+        output("MadeContact");
+        return true;
+      default:
+        break;
+    }
   }
 
   return false;
