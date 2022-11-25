@@ -13,7 +13,19 @@ void humanLikeController_Initial::start(mc_control::fsm::Controller & ctl_)
   std::cout << "[MC RTC pHRIController] Position control.\n";
   // ctl.reset({ctl.realRobots().robot().mbc().q});
   ctl.getPostureTask(ctl.robot().name())->weight(100);
-  ctl.getPostureTask(ctl.robot().name())->target(ctl.posture_target);
+  // ctl.getPostureTask(ctl.robot().name())->posture(ctl.posture_target);
+
+  // Init GUI
+  ctl.gui()->addElement(
+    {"Controller","Init State"},
+    mc_rtc::gui::Button(
+      "Set current posture as target",
+      [&ctl]() {
+        ctl.posture_target = ctl.robot().q();
+        ctl.postureTask->posture(ctl.posture_target);
+      }
+    )
+  );
 }
 
 bool humanLikeController_Initial::run(mc_control::fsm::Controller & ctl_)

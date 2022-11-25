@@ -21,13 +21,13 @@ robots:
   ground:
     module: env/ground
 # General constraints, always on
-constraints:
-  - type: contact
+# constraints:
+#   - type: contact
 
 # Collision constraint
-collisions:
-- type: collision
-  useMinimal: true
+# collisions:
+# - type: collision
+#   useMinimal: true
 
 # Implement some additional text states
 states:

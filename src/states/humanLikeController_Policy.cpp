@@ -41,7 +41,7 @@ void humanLikeController_Policy::start(mc_control::fsm::Controller & ctl_)
   ctl.datastore().make_call("getPolicyState", [this]() -> ctrl_states { return this->currentState; });
 
   // Init GUI
-  ctl.gui()->addElement({"Policy"},
+  ctl.gui()->addElement({"Controller","Policy"},
     mc_rtc::gui::Checkbox(
       "Start button pressed",
       [this](){ return start_btn; },
@@ -95,7 +95,7 @@ void humanLikeController_Policy::teardown(mc_control::fsm::Controller & ctl_)
   auto & ctl = static_cast<PHRI_HLController &>(ctl_);
 
   // Remove GUI elements
-  ctl.gui()->removeCategory({"Policy"});
+  ctl.gui()->removeCategory({"Controller","Policy"});
 }
 
 void humanLikeController_Policy::rosSpinner()
