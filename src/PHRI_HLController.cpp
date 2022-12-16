@@ -3,13 +3,13 @@
 PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, const mc_rtc::Configuration & config)
 : mc_control::fsm::Controller(rm, dt, config)
 {
-  dynamicsConstraint = mc_solver::DynamicsConstraint(robots(), 0, solver().dt(), {0.1, 0.01, 0.5}, 0.85);
+  dynamicsConstraint = mc_solver::DynamicsConstraint(robots(), 0, solver().dt(), {0.1, 0.01, 0.5}, 0.9);
   
   // auto constraints = dynamicsConstraint;
   solver().addConstraintSet(dynamicsConstraint);
   auto posture_task = getPostureTask(robot().name());
   posture_task->stiffness(0.0);
-  posture_task->damping(10);
+  posture_task->damping(4);
   posture_task->weight(100);
   eeTask = std::make_shared<mc_tasks::EndEffectorTask>(robot().frame("tool_frame"));
   datastore().make<std::string>("ControlMode","");

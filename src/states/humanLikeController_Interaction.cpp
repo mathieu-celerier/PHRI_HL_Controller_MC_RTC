@@ -28,13 +28,14 @@ void humanLikeController_Interaction::start(mc_control::fsm::Controller & ctl_)
   ctl.eeTask->reset();
   initPose = ctl.eeTask->get_ef_pose();
   stiffness << 0, 0, 0;
-  damping << 50, 50, 50;
+  damping << 10, 10, 10;
   ctl.eeTask->positionTask->stiffness(stiffness);
   ctl.eeTask->positionTask->damping(damping);
   ctl.eeTask->positionTask->refVel(Eigen::Vector3d::Zero());
   ctl.eeTask->orientationTask->refVel(Eigen::Vector3d::Zero());
   ctl.eeTask->positionTask->position(targetPose.translation());
   ctl.eeTask->orientationTask->orientation(targetPose.rotation());
+  ctl.eeTask->orientationTask->weight(0.0);
 
   p_PPCTask = new PPCTask(
     ctl.timeStep,
@@ -45,7 +46,7 @@ void humanLikeController_Interaction::start(mc_control::fsm::Controller & ctl_)
 
   // ctl.reset({ctl.realRobots().robot().mbc().q});
   ctl.getPostureTask(ctl.robot().name())->weight(100);
-  ctl.getPostureTask(ctl.robot().name())->posture(ctl.posture_target);
+  // ctl.getPostureTask(ctl.robot().name())->posture(ctl.posture_target);
 
   ctl.logger().addLogEntry("PPC_error", [this]() {return p_PPCTask->getError();});
   ctl.logger().addLogEntry("PPC_lower bound", [this]() {return p_PPCTask->getLowBound();});

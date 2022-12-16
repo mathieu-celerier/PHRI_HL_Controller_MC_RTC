@@ -64,6 +64,18 @@ void humanLikeController_Policy::start(mc_control::fsm::Controller & ctl_)
     )
   );
 
+  // Init GUI
+  ctl.gui()->addElement(
+    {"Controller","Init State"},
+    mc_rtc::gui::Button(
+      "Set current posture as target",
+      [&ctl]() {
+        ctl.posture_target = ctl.robot().q();
+        ctl.postureTask->posture(ctl.posture_target);
+      }
+    )
+  );
+
   std::cout << "[MC RTC pHRIController] Policy initialized.\n";
 }
 
@@ -202,7 +214,7 @@ bool humanLikeController_Policy::generateTask(mc_control::fsm::Controller & ctl_
 
   // Set PPCTask parameters for usage in "Interaction" state
   sva::PTransformd targetPose = initPose;
-  targetPose.translation() += Eigen::Vector3d(tracked_piece.distToCatcher,0,0);
+  targetPose.translation() += Eigen::Vector3d(0,tracked_piece.distToCatcher,0);
 
   ctl.datastore().assign<sva::PTransformd>("ppcTargetPose",targetPose);
   ctl.datastore().assign<double>("ppcTd",abs(tracked_piece.distToCatcher/taskSpeed));
