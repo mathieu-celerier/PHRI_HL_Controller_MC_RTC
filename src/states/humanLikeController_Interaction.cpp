@@ -47,7 +47,7 @@ bool humanLikeController_Interaction::run(mc_control::fsm::Controller & ctl_)
 {
   auto & ctl = static_cast<PHRI_HLController &>(ctl_);
 
-  sva::PTransformd currentPose =  ctl.robot().surfacePose("Arm");
+  sva::PTransformd currentPose =  ctl.robot().surfacePose("right_hand");
   p_PPCTask->eval(currentPose.translation(),Eigen::Quaterniond(currentPose.rotation()));
 
   linearVel = p_PPCTask->getLinearVelocityCommand();

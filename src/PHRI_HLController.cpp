@@ -9,7 +9,7 @@ PHRI_HLController::PHRI_HLController(mc_rbdyn::RobotModulePtr rm, double dt, con
   getPostureTask(robot().name())->damping(5);
   getPostureTask(robot().name())->weight(1000);
 
-  eeTask = std::make_shared<mc_tasks::EndEffectorTask>(robot().frame("Arm"));
+  eeTask = std::make_shared<mc_tasks::EndEffectorTask>(robot().frame("right_hand"));
 
 
   // Position task parameters
