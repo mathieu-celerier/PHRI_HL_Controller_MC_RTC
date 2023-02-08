@@ -44,6 +44,8 @@ states:
       - [Interaction, Release, Released, Auto]
       - [Interaction, MadeContact, InContact, Auto]
       - [Interaction, Interact, Interaction, Auto]
+      - [Released, Ok, BasicMotion, Auto]
+      - [BasicMotion, Ok, Released, Auto]
       
 
   Manager:
